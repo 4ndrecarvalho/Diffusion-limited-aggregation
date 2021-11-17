@@ -34,22 +34,22 @@ void randomWalk(int, int *, int, int);
 int radDistance(float, int *, int);
 
 int main(){
-	int j, kia = 0, i = 1, nParticles = 600, stepSize = 1, nSteps = 2000, skipFrames = 1;
-	int xLim = 90, yLim = 40;
+	int j, kia = 0, i = 1, nParticles = 600, stepSize = 1, nSteps = 2000, skipFrames = 1, xLim = 90, yLim = 40;
 	int nPositions[nParticles][2];
 	nPositions[0][0] = xLim / 2;
 	nPositions[0][1] = yLim / 2;
 	int (*pnPositions)[2]= nPositions;
+	double r, theta, x, y;
 	int seed = time(NULL);
 	srand(seed);
 
 	while (i < nParticles) {
 		// criar posições random para as particulas a um determinado raio do centro
 		// https://stackoverflow.com/questions/5837572/generate-a-random-point-within-a-circle-uniformly
-		double r = sqrt(((rand() % 10001) / 10000.0) * (((xLim+yLim)/4)*((xLim+yLim)/4) - ((xLim+yLim)/6)*((xLim+yLim)/6)) + ((xLim+yLim)/6)*(((xLim+yLim)/6)));
-  		double theta = ((rand() % 10001) / 10000.0) * 2 * 3.1415;
-  		double x = xLim/2 + r * cos(theta);
-  		double y = yLim/2 + r * sin(theta);
+		r = sqrt(((rand() % 10001) / 10000.0) * (((xLim+yLim)/4)*((xLim+yLim)/4) - ((xLim+yLim)/6)*((xLim+yLim)/6)) + ((xLim+yLim)/6)*(((xLim+yLim)/6)));
+  		theta = ((rand() % 10001) / 10000.0) * 2 * 3.1415;
+  		x = xLim/2 + r * cos(theta);
+  		y = yLim/2 + r * sin(theta);
 		*(*(pnPositions+i)+0) = (int) x;//rand() % xLim;
 		*(*(pnPositions+i)+1) = (int) y;//rand() % yLim;
 		for (j = 0; j <= nSteps; j++){
