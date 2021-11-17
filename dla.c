@@ -8,7 +8,6 @@ andre.dc@ua.pt
 #include <time.h>
 #include <math.h>
 
-//https://stackoverflow.com/questions/3585846/color-text-in-terminal-applications-in-unix
 #define BOLD   "\x1B[1m"		
 #define BLINK  "\x1B[5m"		
 #define BLK   "\x1B[30m"		
@@ -20,7 +19,7 @@ andre.dc@ua.pt
 #define CYN   "\x1B[36m"
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
-#define BBLK   "\x1B[40m"		
+#define BBLK   "\x1B[48;5;232m"	// "\x1B[40m"
 #define BRED   "\x1B[41m"
 #define BGRN   "\x1B[42m"
 #define BYEL   "\x1B[43m"
@@ -30,50 +29,44 @@ andre.dc@ua.pt
 #define BWHT   "\x1B[47m"
 
 
-#if 0
-
-struct Particle{
-	int number;
-	int neighbours[10];
-	double position[3];
-	struct Particle *next;
-}
-#endif
-
 void screenPrint(int *, int, int, int, int);
 void randomWalk(int, int *, int, int);
 int radDistance(float, int *, int);
 
 int main(){
-	int j, i = 1, nParticles = 500, stepSize = 1, nSteps = 1000, skipFrames = 1;
-	int xLim = 80, yLim = 40;
+	int j, kia = 0, i = 1, nParticles = 1000, stepSize = 1, nSteps = 10000, skipFrames = 1;
+	int xLim = 150, yLim = 80;
 	int nPositions[nParticles][2];
 	nPositions[0][0] = xLim / 2;
 	nPositions[0][1] = yLim / 2;
-	int (*pnPositions)[2]= nPositions; 
-	srand(time(NULL));
+	int (*pnPositions)[2]= nPositions;
+	int seed = time(NULL);
+	srand(seed);
 
 	while (i < nParticles) {
 		// criar posições random para as "i" particulas
 		*(*(pnPositions+i)+0) = rand() % xLim;
 		*(*(pnPositions+i)+1) = rand() % yLim;
 		for (j = 0; j <= nSteps; j++){
-			if (!radDistance(1, *pnPositions, i)){ 
+			if (!radDistance(1.42, *pnPositions, i)){ 
 				randomWalk(stepSize, *(pnPositions+i), xLim, yLim);
 				if (j == nSteps){
 					// Descartar particulas que não tenham agregado em nSteps
-					*(*(pnPositions+i)+0) = -9; 
-					*(*(pnPositions+i)+1) = -9;	
+					*(*(pnPositions+i)+0) = -xLim; 
+					*(*(pnPositions+i)+1) = -yLim;	
+					kia += 1;
 				}
-				if (j % skipFrames == 0){ // adicionar como opção a argv
-					screenPrint(*pnPositions, xLim, yLim, j, i);
-					// usleep(50000);
-				}
+				// if (j % skipFrames == 0){ // adicionar como opção a argv
+				// 	screenPrint(*pnPositions, xLim, yLim, j, i);
+				// 	// usleep(50000);
+				// }
 			}
 			else break;
 		}
 		i++;		
 	}
+	screenPrint(*pnPositions, xLim, yLim, nSteps, nParticles);
+	printf("Particles destroyed: %d, Random seed: %d", kia, seed);
 	return 0;
 }
 
@@ -85,7 +78,7 @@ int radDistance(float radius, int *particlesPosition,int particleNum){
 		distance = sqrt( ((*(particlesPosition+(2*i))) - (*(particlesPosition+(2*particleNum)))) * ((*(particlesPosition+(2*i))) - (*(particlesPosition+(2*particleNum)))) + ((*(particlesPosition+(2*i+1))) - (*(particlesPosition+(2*particleNum+1)))) *	((*(particlesPosition+(2*i+1))) - (*(particlesPosition+(2*particleNum+1)))) );
 		(distance <= radius) ?  neighbours++ : 0;
 	}
-	return neighbours; // True ou False chegava mas queria ter uma maneira de contabilizar evolução das vizinhanças no futuro
+	return neighbours; 
 }
 
 void randomWalk(int stepSize, int *position, int xLim, int yLim){
@@ -101,8 +94,8 @@ void randomWalk(int stepSize, int *position, int xLim, int yLim){
 		case 7: position[0] -= stepSize; position[1] -= stepSize; break;	
 		default: exit(1);
 	}
-	position[0]=abs(position[0] % xLim); //não está a funcionar como queria... adicionei abs() para não deixar sair da caixa para z < zLim 
-	position[1]=abs(position[1] % yLim);
+	position[0]=(position[0] % xLim); //não está a funcionar como queria... 
+	position[1]=(position[1] % yLim);
 }
 
 void screenPrint(int *position, int xLim, int yLim, int step, int particle){
@@ -111,21 +104,22 @@ void screenPrint(int *position, int xLim, int yLim, int step, int particle){
 		for (y = yLim; y >= -1; y--){
 			for (x = -1; x <= xLim+1; x++){
 				for (i = 1; i < particle; i++){
-					if (*(position+(2*i)) == x && *(position+(2*i+1)) == y){ //isto está a dar barraca com adição de espaços onde não deviam... ainda não sei como dar a volta ao problema.
-						printf(BOLD BLINK BYEL GRN "%c" RESET, '#');}
+					if (*(position+(2*i)) == x && *(position+(2*i+1)) == y){ 
+						printf(BOLD BLINK BGRN YEL "%c" BBLK, '#'); goto skipSpace;}
 				}
 				if (*(position+0) == x && *(position+1) == y){
-						printf(BOLD BLINK BCYN BLK "%c" RESET, 'X');}
+						printf(BOLD BLINK BYEL BLK "%c" BBLK, 'X');}
 				else if (*(position+(2*particle)) == x && *(position+(2*particle+1)) == y){
-					printf(BOLD BLINK BRED BLU "%c" RESET, '0');}
-				else if (x == -1 || x == xLim){
-					printf("|");}	
+					printf(BOLD BLINK BRED BLU "%c" BBLK, '0');}
+				// else if (x == -1 || x == xLim){
+				// 	printf(RESET BBLK YEL "|");}	
 				else if (x == xLim+1){
 					printf("\n");}
-				else if (y == -1 || y == yLim){
-					printf("-");}
-				else{ printf(" ");}	
+				// else if (y == -1 || y == yLim){
+				// 	printf(RESET BBLK YEL "-");}
+				else{ printf(RESET BBLK YEL" ");}	
+				skipSpace:
 			}
 		}
-		printf("\nposition: (%d, %d), step: %d, particle: %d\n", *(position+(2*particle+0)), *(position+(2*particle+1)), step, particle);
+		printf(RESET"\nposition: (%d, %d), step: %d, particle: %d\n", *(position+(2*particle+0)), *(position+(2*particle+1)), step, particle);
 }
