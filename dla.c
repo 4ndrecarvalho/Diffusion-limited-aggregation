@@ -2,6 +2,7 @@
 Trabalho extra para AED 2021/2022
 
 Simulador da agregação limitada por difusão 
+v1.0
 
 andre.dc@ua.pt 
 @16/02/2022
@@ -57,7 +58,6 @@ void screen2file(int *position, int xLim, int yLim, int step, int particle, char
 void randomWalk(int stepSize, int *position, int xLim, int yLim, int pbc);
 int radDistance(float radius, int *particlesPosition, int particleNum);
 double cpu_time(void);
-
 
 int main(int argc, char ** argv){
     int seed = time(NULL);
